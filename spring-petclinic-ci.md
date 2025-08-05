@@ -88,7 +88,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: petclinic
-  namespace: argocd
+  namespace: argo-cd
 spec:
   project: default
   source:
@@ -111,7 +111,7 @@ spec:
 ## 5. ArgoCD Application 등록
 
 ```bash
-kubectl apply -f petclinic-argocd-app.yaml -n argocd
+kubectl apply -f petclinic-argocd-app.yaml -n argo-cd
 ```
 
 ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해서 자동으로 배포됩니다.
@@ -123,7 +123,7 @@ ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해�
 ```bash
 kubectl get pods -n petclinic
 kubectl get svc -n petclinic
-kubectl describe application petclinic -n argocd
+kubectl describe application petclinic -n argo-cd
 ```
 
 ---
