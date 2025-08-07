@@ -7,6 +7,14 @@ plugins {
   id 'org.cyclonedx.bom' version '2.3.1'
   id 'io.spring.javaformat' version '0.0.46'
   id "io.spring.nohttp" version "0.0.11"
+  id "org.sonarqube" version "6.0.1.5171"
+}
+
+sonar {
+  properties {
+    property "sonar.projectKey", "spring-petclinic"
+    property "sonar.projectName", "spring-petclinic"
+  }
 }
 
 gradle.startParameter.excludedTaskNames += [ "checkFormatAot", "checkFormatAotTest" ]
