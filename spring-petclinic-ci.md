@@ -130,4 +130,4 @@ kubectl describe application petclinic -n argo-cd
 
 ## 완료 🎉
 
-이제 GitHub에 push할 때마다 CI/CD가 자동으로 수행되어 Harbor에 이미지가 올라가고, ArgoCD가 이를 감지하여 자동 배포합니다.
+이제 GitHub에 push할 때마다 CI/CD가 자동으로 수행되어 Harbor에 이미지가 올라가고, ArgoCD가 이를 감지하여 자동 배포합니다!
