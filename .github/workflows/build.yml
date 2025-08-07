@@ -1,9 +1,10 @@
-name: Build
+name: Build (Disabled)
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 
 jobs:
