@@ -1,6 +1,6 @@
-# Spring Petclinic CI/CD
+# Spring Petclinic CI/CD with SonarQube
 
-이 문서는 `spring-projects/spring-petclinic` 애플리케이션을 GitHub Actions로 CI, Harbor로 이미지 Push, ArgoCD로 배포하는 전체 흐름을 정리한 가이드입니다.
+이 문서는 `spring-projects/spring-petclinic` 애플리케이션을 GitHub Actions로 CI, SonarQube로 코드 품질 분석, Harbor로 이미지 Push, ArgoCD로 배포하는 전체 흐름을 정리한 가이드입니다.
 
 ---
 
@@ -14,10 +14,29 @@
 
 ---
 
-## 2. `.github/workflows/ci.yml` 파일 생성
+## 2. SonarQube 설정
+
+### 2.1 SonarQube 서버 접속
+- URL: `http://sonarqube.bluesunnywings.com`
+- 기본 계정: `admin/admin` (최초 로그인 후 비밀번호 변경 필요)
+
+### 2.2 프로젝트 생성
+1. "Create Project" → "Manually"
+2. Project key: `spring-petclinic`
+3. Display name: `Spring PetClinic`
+4. "Set Up" 클릭
+
+### 2.3 토큰 생성
+1. "Generate Token" 선택
+2. Token name: `petclinic-token`
+3. 생성된 토큰을 GitHub Secrets에 `SONAR_TOKEN`으로 저장
+
+---
+
+## 3. `.github/workflows/ci.yml` 파일 생성
 
 ```yaml
-name: CI/CD Pipeline for Spring Boot App
+name: CI/CD Pipeline with SonarQube
 
 on:
   push:
@@ -26,7 +45,40 @@ on:
     branches: [ "main" ]
 
 jobs:
+  sonarqube-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
+    - name: Run tests and SonarQube analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: http://sonarqube.bluesunnywings.com
+      run: |
+        ./mvnw clean verify sonar:sonar \
+          -Dsonar.projectKey=spring-petclinic \
+          -Dsonar.projectName="Spring PetClinic" \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.token=$SONAR_TOKEN
+
   build-and-push:
+    needs: sonarqube-analysis
     runs-on: ubuntu-latest
     
     env:
@@ -64,11 +116,11 @@ jobs:
           "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
 ```
 
-> ✅ `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`는 GitHub repository secret에 미리 저장해야 합니다.
+> ✅ GitHub Secrets 필요: `SONAR_TOKEN`, `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`
 
 ---
 
-## 3. Dockerfile 작성
+## 4. Dockerfile 작성
 
 ```dockerfile
 FROM eclipse-temurin:17-jdk-alpine
@@ -81,7 +133,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
-## 4. ArgoCD 배포 설정 (petclinic-argocd-app.yaml)
+## 5. ArgoCD 배포 설정 (petclinic-argocd-app.yaml)
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -108,7 +160,7 @@ spec:
 
 ---
 
-## 5. ArgoCD Application 등록
+## 6. ArgoCD Application 등록
 
 ```bash
 kubectl apply -f petclinic-argocd-app.yaml -n argo-cd
@@ -118,7 +170,23 @@ ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해�
 
 ---
 
-## 6. 배포 상태 확인 명령어
+## 7. SonarQube 분석 결과 확인
+
+### 7.1 웹 UI에서 확인
+- URL: `http://sonarqube.bluesunnywings.com`
+- 프로젝트: `spring-petclinic`
+- 주요 메트릭:
+  - **Coverage**: 테스트 커버리지
+  - **Duplications**: 중복 코드
+  - **Maintainability**: 유지보수성
+  - **Reliability**: 신뢰성
+  - **Security**: 보안
+
+
+
+---
+
+## 8. 배포 상태 확인 명령어
 
 ```bash
 kubectl get pods -n petclinic
@@ -130,4 +198,15 @@ kubectl describe application petclinic -n argo-cd
 
 ## 완료 🎉
 
-이제 GitHub에 push할 때마다 CI/CD가 자동으로 수행되어 Harbor에 이미지가 올라가고, ArgoCD가 이를 감지하여 자동 배포합니다!
+이제 GitHub에 push할 때마다:
+1. **SonarQube**가 코드 품질을 분석
+2. Quality Gate 통과 시 **Harbor**에 이미지 빌드 & 푸시
+3. **ArgoCD**가 자동으로 EKS에 배포
+
+전체 파이프라인: **Code → SonarQube → Harbor → ArgoCD → EKS** 🚀
+
+### 추가 개선 사항
+- SonarQube Quality Gate 실패 시 배포 중단
+- Slack/Teams 알림 연동
+- 보안 스캔 추가 (Trivy, Snyk 등)
+- 성능 테스트 자동화
