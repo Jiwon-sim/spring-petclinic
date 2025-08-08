@@ -17,7 +17,7 @@
 ## 2. SonarQube 설정
 
 ### 2.1 SonarQube 서버 접속
-- URL: `http://sonarqube.bluesunnywings.com`
+- URL: `https://sonarqube.bluesunnywings.com`
 - 기본 계정: `admin/admin` (최초 로그인 후 비밀번호 변경 필요)
 
 ### 2.2 프로젝트 생성
@@ -69,7 +69,7 @@ jobs:
     - name: Run tests and SonarQube analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: http://sonarqube.bluesunnywings.com
+        SONAR_HOST_URL: https://sonarqube.bluesunnywings.com
       run: |
         ./mvnw clean verify sonar:sonar \
           -Dsonar.projectKey=spring-petclinic \
@@ -207,7 +207,7 @@ ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해�
 
 ### 8.1 웹 UI에서 확인
 >>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
-- URL: `http://sonarqube.bluesunnywings.com`
+- URL: `https://sonarqube.bluesunnywings.com`
 - 프로젝트: `spring-petclinic`
 - 주요 메트릭:
   - **Coverage**: 테스트 커버리지
