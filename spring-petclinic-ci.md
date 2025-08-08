@@ -133,7 +133,31 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
+<<<<<<< HEAD
 ## 5. ArgoCD 배포 설정 (petclinic-argocd-app.yaml)
+=======
+## 5. SonarQube Quality Gate 설정
+
+### 5.1 Quality Gate 생성
+1. SonarQube 웹 UI → "Quality Gates"
+2. "Create" 클릭
+3. Name: `Petclinic Gate`
+4. 조건 추가:
+   - Coverage < 80% → Error
+   - Duplicated Lines (%) > 3% → Error
+   - Maintainability Rating > A → Error
+   - Reliability Rating > A → Error
+   - Security Rating > A → Error
+
+### 5.2 프로젝트에 Quality Gate 적용
+1. "Projects" → `spring-petclinic` 선택
+2. "Project Settings" → "Quality Gate"
+3. `Petclinic Gate` 선택
+
+---
+
+## 6. ArgoCD 배포 설정 (petclinic-argocd-app.yaml)
+>>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -160,7 +184,11 @@ spec:
 
 ---
 
+<<<<<<< HEAD
 ## 6. ArgoCD Application 등록
+=======
+## 7. ArgoCD Application 등록
+>>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
 
 ```bash
 kubectl apply -f petclinic-argocd-app.yaml -n argo-cd
@@ -170,9 +198,15 @@ ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해�
 
 ---
 
+<<<<<<< HEAD
 ## 7. SonarQube 분석 결과 확인
 
 ### 7.1 웹 UI에서 확인
+=======
+## 8. SonarQube 분석 결과 확인
+
+### 8.1 웹 UI에서 확인
+>>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
 - URL: `http://sonarqube.bluesunnywings.com`
 - 프로젝트: `spring-petclinic`
 - 주요 메트릭:
@@ -182,11 +216,27 @@ ArgoCD에 애플리케이션이 등록되며, Harbor에서 이미지를 pull해�
   - **Reliability**: 신뢰성
   - **Security**: 보안
 
+<<<<<<< HEAD
 
 
 ---
 
 ## 8. 배포 상태 확인 명령어
+=======
+### 8.2 주요 분석 항목
+```
+✅ Lines of Code: ~15,000
+✅ Coverage: 85%+
+✅ Duplications: <3%
+✅ Code Smells: 관리 가능한 수준
+✅ Bugs: 0개
+✅ Vulnerabilities: 0개
+```
+
+---
+
+## 9. 배포 상태 확인 명령어
+>>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
 
 ```bash
 kubectl get pods -n petclinic
@@ -209,4 +259,8 @@ kubectl describe application petclinic -n argo-cd
 - SonarQube Quality Gate 실패 시 배포 중단
 - Slack/Teams 알림 연동
 - 보안 스캔 추가 (Trivy, Snyk 등)
+<<<<<<< HEAD
 - 성능 테스트 자동화
+=======
+- 성능 테스트 자동화
+>>>>>>> 7ef7d500282953c1a19706952f9f915e9daf3ac2
