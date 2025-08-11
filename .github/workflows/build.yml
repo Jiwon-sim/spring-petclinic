@@ -39,6 +39,43 @@ jobs:
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.token=$SONAR_TOKEN
 
+    - name: Run SCA with Trivy (Dependencies)
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'json'
+        output: 'trivy-sca-results.json'
+
+    - name: Export SonarQube results to JSON
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: http://sonarqube.bluesunnywings.com
+      run: |
+        # Wait for SonarQube analysis to complete
+        sleep 30
+        
+        # Export issues
+        curl -u $SONAR_TOKEN: \
+          "$SONAR_HOST_URL/api/issues/search?componentKeys=spring-petclinic&ps=500" \
+          -o sonarqube-issues.json
+        
+        # Export measures
+        curl -u $SONAR_TOKEN: \
+          "$SONAR_HOST_URL/api/measures/component?component=spring-petclinic&metricKeys=coverage,duplicated_lines_density,code_smells,bugs,vulnerabilities,security_hotspots,ncloc" \
+          -o sonarqube-measures.json
+
+    - name: Upload analysis results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: static-analysis-results
+        path: |
+          trivy-sca-results.json
+          sonarqube-issues.json
+          sonarqube-measures.json
+        retention-days: 30
+
   build-and-push:
     needs: sonarqube-analysis
     runs-on: ubuntu-latest
@@ -76,3 +113,33 @@ jobs:
         tags: |
           "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
           "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+
+    - name: Run Trivy image vulnerability scanner (JSON)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
+        format: 'json'
+        output: 'trivy-image-results.json'
+
+    - name: Run Trivy image vulnerability scanner (SARIF)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
+        format: 'sarif'
+        output: 'trivy-image-results.sarif'
+
+    - name: Upload image scan results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: trivy-image-scan-results
+        path: |
+          trivy-image-results.json
+          trivy-image-results.sarif
+        retention-days: 30
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-image-results.sarif'
