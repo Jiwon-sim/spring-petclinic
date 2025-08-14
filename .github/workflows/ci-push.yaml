@@ -7,6 +7,11 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  id-token: write 
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -52,6 +57,14 @@ jobs:
         tags: |
           ${{ env.REGISTRY }}/library/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           ${{ env.REGISTRY }}/library/${{ env.IMAGE_NAME }}:latest
+
+    - name: Install Cosign
+      uses: sigstore/cosign-installer@v3
+
+    - name: Sign container image
+      run: |
+        cosign sign --yes ${{ env.REGISTRY }}/library/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        cosign sign --yes ${{ env.REGISTRY }}/library/${{ env.IMAGE_NAME }}:latest
 
     - name: Run Trivy image vulnerability scanner (JSON)
       uses: aquasecurity/trivy-action@master
