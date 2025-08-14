@@ -19,7 +19,7 @@ jobs:
     env:
       IMAGE_NAME: spring-petclinic
       REGISTRY: harbor.bluesunnywings.com
-      IMAGE_TAG: v1.0.0
+      IMAGE_TAG: ${{ github.sha }}
 
     steps:
     - name: Checkout repository
@@ -96,3 +96,15 @@ jobs:
       if: always()
       with:
         sarif_file: 'trivy-image-results.sarif'
+
+    - name: Update K8s manifest with new image tag
+      run: |
+        sed -i "s|harbor.bluesunnywings.com/library/spring-petclinic:.*|harbor.bluesunnywings.com/library/spring-petclinic:${{ github.sha }}|g" k8s/petclinic.yml
+        
+    - name: Commit and push updated manifest
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add k8s/petclinic.yml
+        git commit -m "Update image tag to ${{ github.sha }}" || exit 0
+        git push
