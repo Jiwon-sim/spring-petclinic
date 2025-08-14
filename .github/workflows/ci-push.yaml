@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write  # ← read에서 write로 변경
   security-events: write
   id-token: write 
 
@@ -24,6 +24,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}  # ← 토큰 추가
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -102,9 +104,11 @@ jobs:
         sed -i "s|harbor.bluesunnywings.com/library/spring-petclinic:.*|harbor.bluesunnywings.com/library/spring-petclinic:${{ github.sha }}|g" k8s/petclinic.yml
         
     - name: Commit and push updated manifest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add k8s/petclinic.yml
         git commit -m "Update image tag to ${{ github.sha }}" || exit 0
-        git push
+        git push origin HEAD:main
