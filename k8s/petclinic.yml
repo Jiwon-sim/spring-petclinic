@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: harbor.bluesunnywings.com/library/spring-petclinic:9570edc18d5bdd5ae627a5fcddf215e76b753903
+          image: harbor.bluesunnywings.com/library/spring-petclinic:4f3bfd460f3b85901eb66be1f770b2ef9e4c6b57
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: default
