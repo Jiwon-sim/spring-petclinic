@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: workload
-          image: harbor.bluesunnywings.com/library/spring-petclinic:db9980caf27f42a5dbb069c293c6d8a30ff1aa79
+          image: harbor.bluesunnywings.com/library/spring-petclinic:3107bc357b6d7dcee939171228d4aa42f4f1a7f8
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: postgres
