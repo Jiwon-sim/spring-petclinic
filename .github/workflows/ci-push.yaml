@@ -3,8 +3,12 @@ name: CI Pipeline for Spring Petclinic
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'k8s/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'k8s/**'
   workflow_dispatch:
 
 permissions:
