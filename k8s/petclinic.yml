@@ -30,6 +30,8 @@ spec:
       labels:
         app: petclinic
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: ip-10-0-11-15.ap-northeast-2.compute.internal
       containers:
         - name: workload
           image: harbor.bluesunnywings.com/library/spring-petclinic:d61c125b7a0b5124bb0b2a3b6be4b52e9ab4e16d
