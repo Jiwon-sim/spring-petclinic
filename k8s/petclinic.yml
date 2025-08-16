@@ -5,7 +5,7 @@ metadata:
   name: petclinic
   namespace: petclinic
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 80
       targetPort: 8080
@@ -72,3 +72,33 @@ spec:
             sources:
               - secret:
                   name: demo-db
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress
+  namespace: petclinic
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:219967435143:certificate/5d011410-cf0a-4412-94fd-9482bed70ef8
+    alb.ingress.kubernetes.io/group.name: common-ingress
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    external-dns.alpha.kubernetes.io/hostname: petclinic.bluesunnywings.com
+spec:
+  ingressClassName: alb
+  rules:
+  - host: petclinic.bluesunnywings.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: petclinic
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - petclinic.bluesunnywings.com
