@@ -35,7 +35,7 @@ spec:
           image: harbor.bluesunnywings.com/library/spring-petclinic:d61c125b7a0b5124bb0b2a3b6be4b52e9ab4e16d
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: default
+              value: postgres
             - name: SERVICE_BINDING_ROOT
               value: /bindings
             - name: SPRING_APPLICATION_JSON
