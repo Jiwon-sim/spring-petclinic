@@ -252,28 +252,24 @@ kubectl logs -f -n argo-cd deployment/argocd-application-controller
 
 ---
 
-## 🚀 완성된 GitOps 워크플로우
+## 🚀 워크플로우
 
-**한 번의 코드 푸시로 모든 것이 자동화됩니다!**
+
 
 ```
 개발자 코드 변경 
     ↓
-GitHub Push (1분)
+GitHub Push 
     ↓  
-CI/CD 실행 (5분)
+CI/CD 실행 
     ↓
-Harbor 이미지 저장 (1분)
+Harbor 이미지 저장 
     ↓
-매니페스트 자동 업데이트 (30초)
+매니페스트 자동 업데이트 
     ↓
-Git 자동 커밋 (30초)
+Git 자동 커밋 
     ↓
-ArgoCD 감지 (3분)
+ArgoCD 감지
     ↓
-자동 재배포 완료 (2분)
+자동 재배포 완료
 ```
-
-**총 소요 시간: 약 13분** ⚡
-
-**이제 개발자는 코드만 작성하면 됩니다!** 🎉
